@@ -3,8 +3,7 @@ package org.example;
 import java.util.Map;
 
 public class PlainConverter implements Converter{
-    @Override
-    public String convert(Map<String, Differ.Change> diffMap) {
+    public String convert(Map<String, Differ.DiffData> diffMap) {
         return null;
     }
 

@@ -5,10 +5,19 @@ import java.util.stream.Collectors;
 
 public class PrettyConverter implements Converter {
     @Override
-    public String convert(Map<String, Differ.Change> diffMap) {
+    public String convert(Map<String, Differ.DiffData> diffMap) {
         String result = diffMap.keySet().stream().map(key -> {
-            String prefix = getPrefix(diffMap.get(key).getChangeType());
-            return String.format("%s%s: %s\n", prefix, key, diffMap.get(key).getValue());
+            Differ.DiffData va = diffMap.get(key);
+            String prefix = getPrefix(va.changeType());
+            Object val = va.value();
+
+            if (va.changeType().equals(ChangeTypes.CHANGED)) {
+                return String.format("+ %s: %s\n- %s: %s\n", key, val, key, va.prevValue());
+            } else {
+                return String.format("%s%s: %s\n", prefix, key, val);
+            }
+
+
         }).collect(Collectors.joining());
 
         return "{\n" + result + "}";
@@ -24,11 +33,8 @@ public class PrettyConverter implements Converter {
             case ADDED -> {
                 return "+ ";
             }
-            case NOTHING -> {
+            case UNCHANGED -> {
                 return "  ";
-            }
-            case CHANGED -> {
-                return "> ";
             }
             case REMOVED -> {
                 return "- ";
